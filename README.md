@@ -13,11 +13,55 @@ Before using this project, install [PyGAD](https://pypi.org/project/pygad) via p
 pip install pygad
 ```
 
+# Installation
+
+To install [PyGAD](https://pypi.org/project/pygad), simply use pip to download and install the library from [PyPI](https://pypi.org/project/pygad) (Python Package Index). The library lives a PyPI at this page https://pypi.org/project/pygad.
+
+For Windows, issue the following command:
+
+```python
+pip install pygad
+```
+
+For Linux and Mac, replace `pip` by use `pip3` because the library only supports Python 3.
+
+```python
+pip3 install pygad
+```
+
+PyGAD is developed in Python 3.7.3 and depends on NumPy for creating and manipulating arrays and Matplotlib for creating figures. The exact NumPy version used in developing PyGAD is 1.16.4. For Matplotlib, the version is 3.1.0.
+
+To get started with PyGAD, please read the documentation at [Read The Docs](https://pygad.readthedocs.io/) https://pygad.readthedocs.io.
+
+# PyGAD Source Code
+
+The source code of the PyGAD' modules is found in the following GitHub projects:
+
+- [pygad](https://github.com/ahmedfgad/GeneticAlgorithmPython): (https://github.com/ahmedfgad/GeneticAlgorithmPython)
+- [pygad.nn](https://github.com/ahmedfgad/NumPyANN): https://github.com/ahmedfgad/NumPyANN
+- [pygad.gann](https://github.com/ahmedfgad/NeuralGenetic): https://github.com/ahmedfgad/NeuralGenetic
+- [pygad.cnn](https://github.com/ahmedfgad/NumPyCNN): https://github.com/ahmedfgad/NumPyCNN
+- [pygad.gacnn](https://github.com/ahmedfgad/CNNGenetic): https://github.com/ahmedfgad/CNNGenetic
+
+The documentation of PyGAD is available at [Read The Docs](https://pygad.readthedocs.io/) https://pygad.readthedocs.io.
+
+# PyGAD Documentation
+
+The documentation of the PyGAD library is available at [Read The Docs](https://pygad.readthedocs.io) at this link: https://pygad.readthedocs.io. It discusses the modules supported by PyGAD, all its classes, methods, attribute, and functions. For each module, a number of examples are given.
+
+If there is an issue using PyGAD, feel free to post at issue in this [GitHub repository](https://github.com/ahmedfgad/GeneticAlgorithmPython) https://github.com/ahmedfgad/GeneticAlgorithmPython or by sending an e-mail to ahmed.f.gad@gmail.com. 
+
+If you built a project that uses PyGAD, then please drop an e-mail to ahmed.f.gad@gmail.com with the following information so that your project is included in the documentation.
+
+- Project title
+- Brief description
+- Preferably, a link that directs the readers to your project
+
+Please check the **Contact Us** section for more contact details.
+
 # Example
 
-There is detailed documentation for the CNNGenetic project available at the PyGAD's library documentation in [this page](https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html): https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html. The page discusses how to build and train CNNs using GA.
-
-Here is the code for an example. Note that this example is discussed in [the documentation](https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html#steps-to-build-and-train-cnn-using-genetic-algorithm).
+Check the [PyGAD's documentation](https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html) for information about the implementation of this example.
 
 ```python
 import numpy
