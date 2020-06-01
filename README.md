@@ -1,2 +1,236 @@
-# CNNGenetic
-Training convolutional neural networks using the genetic algorithm.
+# CNNGenetic: Training Convolutional Neural Networks using the Genetic Algorithm
+[CNNGenetic](https://github.com/ahmedfgad/CNNGenetic) is part of the [PyGAD](https://pypi.org/project/pygad) library for training convolutional neural networks (CNNs) using the genetic algorithm (GA). 
+
+The [CNNGenetic](https://github.com/ahmedfgad/CNNGenetic) project has a single module named `gaccnn.py` which has a class named `GACNN` for training CNN using GA.
+
+The project can be used for classification problems where only 1 class per sample is allowed.
+
+[PyGAD](https://pypi.org/project/pygad) is an open-source Python library for building the genetic algorithm and training machine learning algorithms. Check the library's documentation at [Read The Docs](https://pygad.readthedocs.io/): https://pygad.readthedocs.io
+
+Before using this project, install [PyGAD](https://pypi.org/project/pygad) via pip:
+
+```python
+pip install pygad
+```
+
+# Example
+
+There is detailed documentation for the CNNGenetic project available at the PyGAD's library documentation in [this page](https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html): https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html. The page discusses how to build and train CNNs using GA.
+
+Here is the code for an example. Note that this example is discussed in [the documentation](https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html#steps-to-build-and-train-cnn-using-genetic-algorithm).
+
+```python
+import numpy
+import pygad.cnn
+import pygad.gacnn
+import pygad
+
+def fitness_func(solution, sol_idx):
+    global GACNN_instance, data_inputs, data_outputs
+
+    predictions = GACNN_instance.population_networks[sol_idx].predict(data_inputs=data_inputs)
+    correct_predictions = numpy.where(predictions == data_outputs)[0].size
+    solution_fitness = (correct_predictions/data_outputs.size)*100
+
+    return solution_fitness
+
+def callback_generation(ga_instance):
+    global GACNN_instance, last_fitness
+
+    population_matrices = pygad.gacnn.population_as_matrices(population_networks=GACNN_instance.population_networks, 
+                                                       population_vectors=ga_instance.population)
+
+    GACNN_instance.update_population_trained_weights(population_trained_weights=population_matrices)
+
+    print("Generation = {generation}".format(generation=ga_instance.generations_completed))
+    print("Fitness    = {fitness}".format(fitness=ga_instance.best_solutions_fitness))
+
+data_inputs = numpy.load("dataset_inputs.npy")
+data_outputs = numpy.load("dataset_outputs.npy")
+
+sample_shape = data_inputs.shape[1:]
+num_classes = 4
+
+data_inputs = data_inputs
+data_outputs = data_outputs
+
+input_layer = pygad.cnn.Input2D(input_shape=sample_shape)
+conv_layer1 = pygad.cnn.Conv2D(num_filters=2,
+                               kernel_size=3,
+                               previous_layer=input_layer,
+                               activation_function="relu")
+average_pooling_layer = pygad.cnn.AveragePooling2D(pool_size=5, 
+                                                   previous_layer=conv_layer1,
+                                                   stride=3)
+
+flatten_layer = pygad.cnn.Flatten(previous_layer=average_pooling_layer)
+dense_layer2 = pygad.cnn.Dense(num_neurons=num_classes, 
+                               previous_layer=flatten_layer,
+                               activation_function="softmax")
+
+model = pygad.cnn.Model(last_layer=dense_layer2,
+                        epochs=1,
+                        learning_rate=0.01)
+
+model.summary()
+
+
+GACNN_instance = pygad.gacnn.GACNN(model=model,
+                             num_solutions=4)
+
+# GACNN_instance.update_population_trained_weights(population_trained_weights=population_matrices)
+
+# population does not hold the numerical weights of the network instead it holds a list of references to each last layer of each network (i.e. solution) in the population. A solution or a network can be used interchangeably.
+# If there is a population with 3 solutions (i.e. networks), then the population is a list with 3 elements. Each element is a reference to the last layer of each network. Using such a reference, all details of the network can be accessed.
+population_vectors = pygad.gacnn.population_as_vectors(population_networks=GACNN_instance.population_networks)
+
+# To prepare the initial population, there are 2 ways:
+# 1) Prepare it yourself and pass it to the initial_population parameter. This way is useful when the user wants to start the genetic algorithm with a custom initial population.
+# 2) Assign valid integer values to the sol_per_pop and num_genes parameters. If the initial_population parameter exists, then the sol_per_pop and num_genes parameters are useless.
+initial_population = population_vectors.copy()
+
+num_parents_mating = 2 # Number of solutions to be selected as parents in the mating pool.
+
+num_generations = 10 # Number of generations.
+
+mutation_percent_genes = 0.1 # Percentage of genes to mutate. This parameter has no action if the parameter mutation_num_genes exists.
+
+parent_selection_type = "sss" # Type of parent selection.
+
+crossover_type = "single_point" # Type of the crossover operator.
+
+mutation_type = "random" # Type of the mutation operator.
+
+keep_parents = -1 # Number of parents to keep in the next population. -1 means keep all parents and 0 means keep nothing.
+
+ga_instance = pygad.GA(num_generations=num_generations, 
+                       num_parents_mating=num_parents_mating, 
+                       initial_population=initial_population,
+                       fitness_func=fitness_func,
+                       mutation_percent_genes=mutation_percent_genes,
+                       parent_selection_type=parent_selection_type,
+                       crossover_type=crossover_type,
+                       mutation_type=mutation_type,
+                       keep_parents=keep_parents,
+                       callback_generation=callback_generation)
+
+ga_instance.run()
+
+# After the generations complete, some plots are showed that summarize how the outputs/fitness values evolve over generations.
+ga_instance.plot_result()
+
+# Returning the details of the best solution.
+solution, solution_fitness, solution_idx = ga_instance.best_solution()
+print("Parameters of the best solution : {solution}".format(solution=solution))
+print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
+print("Index of the best solution : {solution_idx}".format(solution_idx=solution_idx))
+
+if ga_instance.best_solution_generation != -1:
+    print("Best fitness value reached after {best_solution_generation} generations.".format(best_solution_generation=ga_instance.best_solution_generation))
+
+# Predicting the outputs of the data using the best solution.
+predictions = GACNN_instance.population_networks[solution_idx].predict(data_inputs=data_inputs)
+print("Predictions of the trained network : {predictions}".format(predictions=predictions))
+
+# Calculating some statistics
+num_wrong = numpy.where(predictions != data_outputs)[0]
+num_correct = data_outputs.size - num_wrong.size
+accuracy = 100 * (num_correct/data_outputs.size)
+print("Number of correct classifications : {num_correct}.".format(num_correct=num_correct))
+print("Number of wrong classifications : {num_wrong}.".format(num_wrong=num_wrong.size))
+print("Classification accuracy : {accuracy}.".format(accuracy=accuracy))
+```
+
+# For More Information
+
+There are different resources that can be used to get started with the building CNN and its Python implementation. 
+
+## Tutorial: Implementing Genetic Algorithm in Python
+
+To start with coding the genetic algorithm, you can check the tutorial titled [**Genetic Algorithm Implementation in Python**](https://www.linkedin.com/pulse/genetic-algorithm-implementation-python-ahmed-gad) available at these links:
+
+- [LinkedIn](https://www.linkedin.com/pulse/genetic-algorithm-implementation-python-ahmed-gad)
+- [Towards Data Science](https://towardsdatascience.com/genetic-algorithm-implementation-in-python-5ab67bb124a6)
+- [KDnuggets](https://www.kdnuggets.com/2018/07/genetic-algorithm-implementation-python.html)
+
+[This tutorial](https://www.linkedin.com/pulse/genetic-algorithm-implementation-python-ahmed-gad) is prepared based on a previous version of the project but it still a good resource to start with coding the genetic algorithm.
+
+[![Genetic Algorithm Implementation in Python](https://user-images.githubusercontent.com/16560492/78830052-a3c19300-79e7-11ea-8b9b-4b343ea4049c.png)](https://www.linkedin.com/pulse/genetic-algorithm-implementation-python-ahmed-gad)
+
+## Tutorial: Introduction to Genetic Algorithm
+
+Get started with the genetic algorithm by reading the tutorial titled [**Introduction to Optimization with Genetic Algorithm**](https://www.linkedin.com/pulse/introduction-optimization-genetic-algorithm-ahmed-gad) which is available at these links:
+
+* [LinkedIn](https://www.linkedin.com/pulse/introduction-optimization-genetic-algorithm-ahmed-gad)
+* [Towards Data Science](https://www.kdnuggets.com/2018/03/introduction-optimization-with-genetic-algorithm.html)
+* [KDnuggets](https://towardsdatascience.com/introduction-to-optimization-with-genetic-algorithm-2f5001d9964b)
+
+[![Introduction to Genetic Algorithm](https://user-images.githubusercontent.com/16560492/82078259-26252d00-96e1-11ea-9a02-52a99e1054b9.jpg)](https://www.linkedin.com/pulse/introduction-optimization-genetic-algorithm-ahmed-gad)
+
+## Tutorial: Build Neural Networks in Python
+
+Read about building neural networks in Python through the tutorial titled [**Artificial Neural Network Implementation using NumPy and Classification of the Fruits360 Image Dataset**](https://www.linkedin.com/pulse/artificial-neural-network-implementation-using-numpy-fruits360-gad) available at these links:
+
+* [LinkedIn](https://www.linkedin.com/pulse/artificial-neural-network-implementation-using-numpy-fruits360-gad)
+* [Towards Data Science](https://towardsdatascience.com/artificial-neural-network-implementation-using-numpy-and-classification-of-the-fruits360-image-3c56affa4491)
+* [KDnuggets](https://www.kdnuggets.com/2019/02/artificial-neural-network-implementation-using-numpy-and-image-classification.html)
+
+[![Building Neural Networks Python](https://user-images.githubusercontent.com/16560492/82078281-30472b80-96e1-11ea-8017-6a1f4383d602.jpg)](https://www.linkedin.com/pulse/artificial-neural-network-implementation-using-numpy-fruits360-gad)
+
+## Tutorial: Optimize Neural Networks with Genetic Algorithm
+
+Read about training neural networks using the genetic algorithm through the tutorial titled [**Artificial Neural Networks Optimization using Genetic Algorithm with Python**](https://www.linkedin.com/pulse/artificial-neural-networks-optimization-using-genetic-ahmed-gad) available at these links:
+
+- [LinkedIn](https://www.linkedin.com/pulse/artificial-neural-networks-optimization-using-genetic-ahmed-gad)
+- [Towards Data Science](https://towardsdatascience.com/artificial-neural-networks-optimization-using-genetic-algorithm-with-python-1fe8ed17733e)
+- [KDnuggets](https://www.kdnuggets.com/2019/03/artificial-neural-networks-optimization-genetic-algorithm-python.html)
+
+[![Training Neural Networks using Genetic Algorithm Python](https://user-images.githubusercontent.com/16560492/82078300-376e3980-96e1-11ea-821c-aa6b8ceb44d4.jpg)](https://www.linkedin.com/pulse/artificial-neural-networks-optimization-using-genetic-ahmed-gad)
+
+## Tutorial: Building CNN in Python
+
+To start with coding the genetic algorithm, you can check the tutorial titled [**Building Convolutional Neural Network using NumPy from Scratch**](https://www.linkedin.com/pulse/building-convolutional-neural-network-using-numpy-from-ahmed-gad) available at these links:
+
+- [LinkedIn](https://www.linkedin.com/pulse/building-convolutional-neural-network-using-numpy-from-ahmed-gad)
+- [Towards Data Science](https://towardsdatascience.com/building-convolutional-neural-network-using-numpy-from-scratch-b30aac50e50a)
+- [KDnuggets](https://www.kdnuggets.com/2018/04/building-convolutional-neural-network-numpy-scratch.html)
+- [Chinese Translation](http://m.aliyun.com/yunqi/articles/585741)
+
+[This tutorial](https://www.linkedin.com/pulse/building-convolutional-neural-network-using-numpy-from-ahmed-gad)) is prepared based on a previous version of the project but it still a good resource to start with coding CNNs.
+
+[![Building CNN in Python](https://user-images.githubusercontent.com/16560492/82431022-6c3a1200-9a8e-11ea-8f1b-b055196d76e3.png)](https://www.linkedin.com/pulse/building-convolutional-neural-network-using-numpy-from-ahmed-gad)
+
+## Tutorial: Derivation of CNN from FCNN
+
+Get started with the genetic algorithm by reading the tutorial titled [**Derivation of Convolutional Neural Network from Fully Connected Network Step-By-Step**](https://www.linkedin.com/pulse/derivation-convolutional-neural-network-from-fully-connected-gad) which is available at these links:
+
+* [LinkedIn](https://www.linkedin.com/pulse/derivation-convolutional-neural-network-from-fully-connected-gad)
+* [Towards Data Science](https://towardsdatascience.com/derivation-of-convolutional-neural-network-from-fully-connected-network-step-by-step-b42ebafa5275)
+* [KDnuggets](https://www.kdnuggets.com/2018/04/derivation-convolutional-neural-network-fully-connected-step-by-step.html)
+
+[![Derivation of CNN from FCNN](https://user-images.githubusercontent.com/16560492/82431369-db176b00-9a8e-11ea-99bd-e845192873fc.png)](https://www.linkedin.com/pulse/derivation-convolutional-neural-network-from-fully-connected-gad)
+
+## Book: Practical Computer Vision Applications Using Deep Learning with CNNs
+
+You can also check my book cited as [**Ahmed Fawzy Gad 'Practical Computer Vision Applications Using Deep Learning with CNNs'. Dec. 2018, Apress, 978-1-4842-4167-7**](https://www.amazon.com/Practical-Computer-Vision-Applications-Learning/dp/1484241665) which discusses neural networks, convolutional neural networks, deep learning, genetic algorithm, and more.
+
+Find the book at these links:
+
+- [Amazon](https://www.amazon.com/Practical-Computer-Vision-Applications-Learning/dp/1484241665)
+- [Springer](https://link.springer.com/book/10.1007/978-1-4842-4167-7)
+- [Apress](https://www.apress.com/gp/book/9781484241660)
+- [O'Reilly](https://www.oreilly.com/library/view/practical-computer-vision/9781484241677)
+- [Google Books](https://books.google.com.eg/books?id=xLd9DwAAQBAJ)
+
+![Fig04](https://user-images.githubusercontent.com/16560492/78830077-ae7c2800-79e7-11ea-980b-53b6bd879eeb.jpg)
+
+# Contact Us
+
+* E-mail: ahmed.f.gad@gmail.com
+* [LinkedIn](https://www.linkedin.com/in/ahmedfgad)
+* [Amazon Author Page](https://amazon.com/author/ahmedgad)
+* [Heartbeat](https://heartbeat.fritz.ai/@ahmedfgad)
+* [Paperspace](https://blog.paperspace.com/author/ahmed)
+* [KDnuggets](https://kdnuggets.com/author/ahmed-gad)
+* [TowardsDataScience](https://towardsdatascience.com/@ahmedfgad)
+* [GitHub](https://github.com/ahmedfgad)
