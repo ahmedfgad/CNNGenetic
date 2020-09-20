@@ -1,7 +1,7 @@
 # CNNGenetic: Training Convolutional Neural Networks using the Genetic Algorithm
 [CNNGenetic](https://github.com/ahmedfgad/CNNGenetic) is part of the [PyGAD](https://pypi.org/project/pygad) library for training convolutional neural networks (CNNs) using the genetic algorithm (GA). 
 
-The [CNNGenetic](https://github.com/ahmedfgad/CNNGenetic) project has a single module named `gaccnn.py` which has a class named `GACNN` for training CNN using GA.
+The [CNNGenetic](https://github.com/ahmedfgad/CNNGenetic) project has a single module named `gacnn.py` which has a class named `GACNN` for training CNN using GA.
 
 The project can be used for classification problems where only 1 class per sample is allowed.
 
