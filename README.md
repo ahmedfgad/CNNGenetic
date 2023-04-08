@@ -7,17 +7,12 @@ The project can be used for classification problems where only 1 class per sampl
 
 [PyGAD](https://pypi.org/project/pygad) is an open-source Python library for building the genetic algorithm and training machine learning algorithms. Check the library's documentation at [Read The Docs](https://pygad.readthedocs.io/): https://pygad.readthedocs.io
 
-Before using this project, install [PyGAD](https://pypi.org/project/pygad) via pip:
-
-```python
-pip install pygad
-```
-
 # Donation
 
-You can donate via [Open Collective](https://opencollective.com/pygad): [opencollective.com/pygad](https://opencollective.com/pygad). 
-
-To donate using PayPal, use either this link: [paypal.me/ahmedfgad](https://paypal.me/ahmedfgad) or the e-mail address ahmed.f.gad@gmail.com.
+- [Credit/Debit Card](https://donate.stripe.com/eVa5kO866elKgM0144): https://donate.stripe.com/eVa5kO866elKgM0144
+- [Open Collective](https://opencollective.com/pygad): [opencollective.com/pygad](https://opencollective.com/pygad)
+- PayPal: Use either this link: [paypal.me/ahmedfgad](https://paypal.me/ahmedfgad) or the e-mail address ahmed.f.gad@gmail.com
+- Interac e-Transfer: Use e-mail address ahmed.f.gad@gmail.com
 
 # Installation
 
@@ -26,8 +21,6 @@ To install [PyGAD](https://pypi.org/project/pygad), simply use pip to download a
 ```python
 pip3 install pygad
 ```
-
-PyGAD is developed in Python 3.7.3 and depends on NumPy for creating and manipulating arrays and Matplotlib for creating figures. The exact NumPy version used in developing PyGAD is 1.16.4. For Matplotlib, the version is 3.1.0.
 
 To get started with PyGAD, please read the documentation at [Read The Docs](https://pygad.readthedocs.io/) https://pygad.readthedocs.io.
 
@@ -74,7 +67,7 @@ import numpy
 function_inputs = [4,-2,3.5,5,-11,-4.7]
 desired_output = 44
 
-def fitness_func(solution, solution_idx):
+def fitness_func(ga_instance, solution, solution_idx):
     output = numpy.sum(solution*function_inputs)
     fitness = 1.0 / (numpy.abs(output - desired_output) + 0.000001)
     return fitness
@@ -154,7 +147,7 @@ import pygad.cnn
 import pygad.gacnn
 import pygad
 
-def fitness_func(solution, sol_idx):
+def fitness_func(ga_instance, solution, sol_idx):
     global GACNN_instance, data_inputs, data_outputs
 
     predictions = GACNN_instance.population_networks[sol_idx].predict(data_inputs=data_inputs)
