@@ -139,7 +139,7 @@ on_stop()
 
 # Example
 
-Check the [PyGAD's documentation](https://pygad.readthedocs.io/en/latest/README_pygad_gacnn_ReadTheDocs.html) for information about the implementation of this example.
+Check the [PyGAD's documentation](https://pygad.readthedocs.io/en/latest/gacnn.html) for information about the implementation of this example.
 
 ```python
 import numpy
