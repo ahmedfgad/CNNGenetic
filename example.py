@@ -12,7 +12,7 @@ A tutorial that helps to get started (Building Convolutional Neural Network usin
 It is also translated into Chinese: http://m.aliyun.com/yunqi/articles/585741
 """
 
-def fitness_func(solution, sol_idx):
+def fitness_func(ga_instance, solution, sol_idx):
     global GACNN_instance, data_inputs, data_outputs
 
     predictions = GACNN_instance.population_networks[sol_idx].predict(data_inputs=data_inputs)
@@ -107,7 +107,7 @@ ga_instance.run()
 ga_instance.plot_fitness()
 
 # Returning the details of the best solution.
-solution, solution_fitness, solution_idx = ga_instance.best_solution()
+solution, solution_fitness, solution_idx = ga_instance.best_solution(pop_fitness=ga_instance.last_generation_fitness)
 print("Parameters of the best solution : {solution}".format(solution=solution))
 print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
 print("Index of the best solution : {solution_idx}".format(solution_idx=solution_idx))
